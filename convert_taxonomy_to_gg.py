@@ -1,24 +1,18 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[98]:
-
-
+# Author: Adam Sorbie
+# 2020-01-28
 import pandas as pd
-
-
-# In[109]:
 
 
 taxonomy_dict = {"Kingdom": "k__", "Phylum": "p__", "Class": "c__", "Order": "k__", "Family": "f__", "Genus": "g__", "Species": "s__" }
 
 def read_file(filename):
-     """Reads in file
+    """Reads in file
     Parameters
     ----------
     filename: str
         filename of OTU table/taxonomy file"""
-    df = pd.read_csv(filename, sep="\t", index_col=0, header=0)
+    # sep = None tries to infer delimiter but it may be better to write something for this just in case
+    df = pd.read_csv(filename, sep=None, index_col=0, header=0, engine="python")
     df_taxa = df[["taxonomy"]]
     return df_taxa
 def split_taxonomy(df, col):
@@ -54,44 +48,30 @@ def add_all_prefixes(df):
         add_taxa_prefix(df, key, value)
     return df
 
-def convert_to_gg(df, original_col, new_col, read_files=False, filename=None):
+def convert_to_gg(file, original_col, new_col, delim):
     """Converts SILVA formatted taxonomy into greengenes and output df with 
     single taxonomy column
     Parameters
     ----------
-    df: Pandas Dataframe
-        Pandas dataframe containing taxonomy
+    file: OTU table/Taxonomy file
+        txt or csv containing taxonomy
     original_col: str
         column name of silva-formatted taxonomy
     new_col: str
-        column name to use for gg formatted taxonomy
-    read_files: bool (optional)
-        whether to read in file or use existing df
-    filename: str (optional)
-        filename if read_files is used"""
-    if read_files and filename:
-            df = read_file(filename)
+        column name to use for gg formatted taxonomy"""
+    df = read_file(file)
+    # split taxa column by delim 
     df_split_taxa = split_taxonomy(df, original_col)
     df_prefixes = add_all_prefixes(df_split_taxa)
-    df_prefixes[new_col] = df_prefixes[df_prefixes.columns[1:]].apply(lambda x: '; '.join(x.dropna().astype(str)),
+    df_prefixes[new_col] = df_prefixes[df_prefixes.columns[1:]].apply(lambda x: delim.join(x.dropna().astype(str)),
     axis=1)
     df_out = df_prefixes[[new_col]]
     return df_out
 
 
-# In[111]:
+# GG_taxonomy = convert_to_gg("OTUs-Table.tab", "taxonomy", "gg_taxonomy", delim=";")
 
 
-GG_taxonomy = convert_to_gg(data, "taxonomy", "gg_taxonomy", read_files=True, filename="OTUs-Table.tab")
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
 
 
 

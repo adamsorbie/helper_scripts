@@ -5,7 +5,7 @@ library(phyloseq)
 
 split_taxonomy <- function(otu) {
   # select taxa column and split taxonomy column into separate columns using ; delimiter
-   taxonomy_phylo <- select(otu, "taxonomy") %>%
+   taxonomy_phylo <- dplyr::select(otu, "taxonomy") %>%
     separate("taxonomy", c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus"), sep = ";")
   return(taxonomy_phylo)
 }
